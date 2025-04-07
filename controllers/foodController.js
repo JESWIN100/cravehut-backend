@@ -1,5 +1,6 @@
 import { cloudinaryInstance } from "../config/cloudinaryConfig.js";
 import { Food } from "../models/foodSchema.js";
+import { Restaurant } from "../models/resturentSchema.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { foodValidation } from "../validation/foodJoiValidation.js";
 
@@ -60,6 +61,69 @@ export const getAllFoods=asyncHandler(async(req,res)=>{
   res.status(200).json({ status:true, msg: "All foods fetched successfully", foods: allFoods });
 
 })
+export const getUniqueFoods = asyncHandler(async (req, res) => {
+  // Get all foods with restaurant data
+  const allFoods = await Food.find().populate("restaurant");
+
+  // Use a Map to store unique food items by name
+  const uniqueFoodsMap = new Map();
+
+  allFoods.forEach((food) => {
+    // If the food name is not already in the map, add it
+    if (!uniqueFoodsMap.has(food.name.toLowerCase())) {
+      uniqueFoodsMap.set(food.name.toLowerCase(), food);
+    }
+  });
+
+  // Convert the Map values to an array
+  const uniqueFoods = Array.from(uniqueFoodsMap.values());
+
+  res.status(200).json({
+    status: true,
+    msg: "Unique foods fetched successfully",
+    foods: uniqueFoods,
+  });
+});
+
+
+export const getFoodsByRestaurantId = asyncHandler(async (req, res) => {
+  const restaurantId  = req.params.id;
+
+
+  const foods = await Food.find({ restaurant: restaurantId }).populate("restaurant");
+
+  
+  if (!foods.length) {
+    return res.status(404).json({ status: false, msg: "No food items found for this restaurant" });
+  }
+
+  res.status(200).json({ status: true, msg: "Foods fetched successfully", foods });
+});
+
+
+export const getRestaurantsByFoodName = asyncHandler(async (req, res) => {
+  const { foodName } = req.params; // or use req.query.foodName
+
+  // Find all food items with the given name (case-insensitive)
+  const foods = await Food.find({ name: { $regex: new RegExp(foodName, 'i') } });
+
+  if (!foods.length) {
+    return res.status(404).json({ status: false, msg: "No restaurants found offering this food item" });
+  }
+
+  // Get unique restaurant IDs
+  const restaurantIds = [...new Set(foods.map(food => food.restaurant.toString()))];
+
+  // Fetch restaurant details
+  const restaurants = await Restaurant.find({ _id: { $in: restaurantIds } });
+
+  res.status(200).json({
+    status: true,
+    msg: `Restaurants offering "${foodName}"`,
+    data: restaurants
+  });
+});
+
 
 export const editFood=asyncHandler(async(req,res)=>{
   
@@ -93,14 +157,16 @@ export const editFood=asyncHandler(async(req,res)=>{
 })
 
 
-export const deleteFood=asyncHandler(async(req,res)=>{
-  const foodId=req.params.id
-  const food=await Food.findById(foodId)
-  if(!food){
-    return res.status(404).json({ status:false, msg: "Food item not found"
-      });
-      }
-      await food.remove()
-      res.status(200).json({ status:true, msg: "Food item deleted successfully" });
-      
-})
+export const deleteFood = asyncHandler(async (req, res) => {
+  const foodId = req.params.id;
+  const food = await Food.findById(foodId);
+
+  if (!food) {
+    return res.status(404).json({ status: false, msg: "Food item not found" });
+  }
+
+  await Food.deleteOne({ _id: foodId });
+
+  res.status(200).json({ status: true, msg: "Food item deleted successfully" });
+});
+

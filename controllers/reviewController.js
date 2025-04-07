@@ -44,3 +44,15 @@ const userId=req.user.id
     });
   });
   
+  export const getreviewbyid=asyncHandler(async(req,res)=>{
+    const resturentId=req.params.id
+    const reviews=await Review.find({resturent:resturentId}).populate('user').populate('resturent')
+    res.status(200).json({success:true,data:reviews})
+  
+  })
+
+  export const getallReviews=asyncHandler(async(req,res)=>{
+    const reviews=await Review.find().populate('user').populate('resturent')
+    res.status(200).json({success:true,data:reviews})
+  
+  })

@@ -75,7 +75,7 @@ export const updateAdminProfile = asyncHandler(async (req, res) => {
     await admin.save();
     res.status(200).json({ success: true, message: "Admin profile updated successfully" });
 });
-
+   
 // Delete Admin
 export const deleteAdmin = asyncHandler(async (req, res) => {
     const admin = await Admin.findById(req.admin._id);

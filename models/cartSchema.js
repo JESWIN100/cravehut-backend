@@ -10,7 +10,7 @@ const cartSchema = new mongoose.Schema({
         {
             productId: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Restaurant", // Assuming food items are linked to restaurants
+                ref: "Restaurant",
                 required: true
             },
             name: String,
@@ -21,7 +21,8 @@ const cartSchema = new mongoose.Schema({
                 min: 1,
                 default: 1
             },
-            image: String
+            foodId:String,
+            image: String,
         }
     ],
     totalPrice: {

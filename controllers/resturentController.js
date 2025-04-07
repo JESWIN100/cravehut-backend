@@ -91,17 +91,68 @@ export const Resturentlogin = asyncHandler(async (req, res) => {
 });
 
 
+        export const getResturant = asyncHandler(async (req, res, next) => {
+          const user = req.user;
+          const userDetails = await User.findById(user.id).select('-password');
+      
+          
+          res.status(200).json({
+            success: true,
+            userDetails,
+          });
+        });
+      
+        export const checkOwnerHasRestaurant = asyncHandler(async (req, res) => {
+          const ownerId = req.resturent.id;
+        
+          const restaurant = await Restaurant.findOne({ owner: ownerId });
+        
+          if (!restaurant) {
+            return res.status(200).json({
+              hasRestaurant: false,
+              msg: "No restaurant found. Please create one.",
+            });
+          }
+        
+          res.status(200).json({
+            hasRestaurant: true,
+            restaurant,
+          });
+        });
+        
+
+
+
+        export const checkRestutant=asyncHandler(async(req,res,next)=>{
+  
+
+          const user=req.resturent;
+          // console.log(user);
+          
+          if(!user){
+              return res.status(401).json({success:false,message:'Resturrabt not authenticated'})
+              }
+          
+        res.json({success:true,message:'Resturabt is authenticated'})
+      
+      
+          } )
+
 
 export const createResturent=asyncHandler(async(req,res)=>{
 
-    const {name,address,contactNumber,cuisineType,ratings,operatingHours,menuItems,deliveryAvaible}=req.body;
+    const {name,address,contactNumber,cuisineType,ratings,operatingHours,menuItems,deliveryAvaible,category,offers}=req.body;
+console.log(req.body);
 
       const { error } = restaurantValidation(req.body);
       if (error) {
         return res.status(400).json({ msg: error.details.map((err) => err.message) });
       }
 
-      console.log( req.files);
+      const existingRestaurant = await Restaurant.findOne({ owner: req.resturent.id });
+  if (existingRestaurant) {
+    return res.status(400).json({ sucess:false,msg: "You have already created a restaurant." });
+  }
       
       let imageUrl = "";
       if ( req.file) {  // Ensure req.file exists
@@ -121,9 +172,13 @@ export const createResturent=asyncHandler(async(req,res)=>{
         operatingHours,
         menuItems,
         deliveryAvaible,
-        image:imageUrl
+        category,
+        offers,
+        image:imageUrl,
+        owner:req.resturent.id
       
       })
+      
       await newRestaurant.save()
       res.json({ status:true, msg: "Restaurant created successfully",data:newRestaurant });
 
@@ -136,27 +191,56 @@ export const getAllResturent=asyncHandler(async(req,res)=>{
     
 })
 
-export const editResturent=asyncHandler(async(req,res)=>{
-  const {name,address,contactNumber,cuisineType,ratings,operatingHours,menuItems
-    ,deliveryAvaible}=req.body;
-    const { error } = restaurantValidation(req.body);
-    if (error) {
-      return res.status(400).json({ msg: error.details.map((err) => err.message) });
-        }
-        const restaurant=await Restaurant.findById(req.params.id);
-        if(!restaurant){
-          return res.status(404).json({ msg: "Restaurant not found" });
-          }
-          restaurant.name=name;
-          restaurant.address=address;
-          restaurant.contactNumber=contactNumber;
-          restaurant.cuisineType=cuisineType;
-          restaurant.ratings=ratings;
-          restaurant.operatingHours=operatingHours;
-          restaurant.menuItems=menuItems;
-          restaurant.deliveryAvaible=deliveryAvaible;
-          restaurant.image=req.file.path;
-          await restaurant.save();
-          res.json({ status:true, msg: "Restaurant updated successfully",data:restaurant });
-          
+export const getRestaurantById = asyncHandler(async (req, res) => {
+  const ownerId = req.resturent?.id;
+
+  if (!ownerId) {
+    return res.status(401).json({ status: false, msg: "Unauthorized: owner ID not found" });
+  }
+
+  const restaurant = await Restaurant.findOne({ owner: ownerId }).select("-__v");
+
+  if (!restaurant) {
+    return res.status(404).json({ status: false, msg: "No restaurant found for this owner" });
+  }
+
+  res.status(200).json({ status: true, msg: "Restaurant fetched successfully", data: restaurant });
+});
+
+
+
+
+export const editRestaurant = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { name, address, contactNumber, cuisineType, ratings, operatingHours, menuItems, deliveryAvailable } = req.body;
+
+
+  const restaurant = await Restaurant.findById(id);
+  if (!restaurant) {
+    return res.status(404).json({ status: false, msg: "Restaurant not found" });
+  }
+
+  let imageUrl = restaurant.image;
+  if (req.file) {
+    const result = await cloudinaryInstance.uploader.upload(req.file.path, { folder: "resturent_images" });
+    imageUrl = result.secure_url;
+  }
+
+  const updatedRestaurant = await Restaurant.findByIdAndUpdate(id, {
+    name, address, contactNumber, cuisineType, ratings, operatingHours, menuItems, deliveryAvailable, image: imageUrl
+  }, { new: true });
+
+  res.status(200).json({ status: true, msg: "Restaurant updated successfully", data: updatedRestaurant });
+});
+
+
+export const deleteResturent=asyncHandler(async(req,res)=>{
+  const {id}=req.params; 
+  const restaurant=await Restaurant.findById(req.params.id);
+  if(!restaurant){
+    return res.status(404).json({ msg: "Restaurant not found" });
+    }
+    await restaurant.deleteOne({ _id: restaurant });
+    res.json({ status:true, msg: "Restaurant deleted successfully" });
+    
 })

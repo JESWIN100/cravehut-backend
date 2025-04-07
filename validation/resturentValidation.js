@@ -14,7 +14,10 @@ const restaurantSchema = Joi.object({
     }).required(),
     menuItems: Joi.array().items(Joi.string()).default([]),
     deliveryAvailable: Joi.boolean().default(false),
-    images: Joi.string(),
+    category:Joi.string().required(),
+    offers:Joi.string().required(),
+    image: Joi.string(),
+    owner:Joi.string(),
 })
 return restaurantSchema.validate(data, { abortEarly: false });
 };

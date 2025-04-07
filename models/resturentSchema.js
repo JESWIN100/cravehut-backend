@@ -49,10 +49,24 @@ const restaurantSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+
+    category:{
+        type: String,
+       require:true
+    },
+    offers:{
+        type:String,
+        require:true
+    },
     image: {
         type: String,
         trim: true
-    }
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'RestOwner',
+        // required: true
+      },
 }, { timestamps: true });
 
 export const Restaurant = mongoose.model("Restaurant", restaurantSchema);
