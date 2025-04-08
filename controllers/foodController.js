@@ -170,3 +170,48 @@ export const deleteFood = asyncHandler(async (req, res) => {
   res.status(200).json({ status: true, msg: "Food item deleted successfully" });
 });
 
+
+export const searchFood = asyncHandler(async (req, res) => {
+  const query = req.query.q?.toString().trim();
+
+  if (!query) {
+    return res.status(400).json({ status: false, error: "Search query is required" });
+  }
+
+  // 1. Search foods by name, ingredients, or category
+  const foodMatches = await Food.find({
+    $or: [
+      { name: { $regex: query, $options: 'i' } },
+      { ingredients: { $regex: query, $options: 'i' } },
+      { category: { $regex: query, $options: 'i' } }
+    ]
+  }).populate('restaurant');
+
+  // 2. Search restaurants by name
+  const matchingRestaurants = await Restaurant.find({
+    name: { $regex: query, $options: 'i' }
+  });
+
+  // 3. If restaurants matched, find their food items
+  let foodsFromRestaurants = [];
+  if (matchingRestaurants.length > 0) {
+    const restaurantIds = matchingRestaurants.map(r => r._id);
+    foodsFromRestaurants = await Food.find({ restaurant: { $in: restaurantIds } }).populate('restaurant');
+  }
+
+  // 4. Combine both results and remove duplicates
+  const combinedFoods = [...foodMatches, ...foodsFromRestaurants];
+  const uniqueFoodsMap = new Map();
+  combinedFoods.forEach(food => {
+    uniqueFoodsMap.set(food._id.toString(), food);
+  });
+
+  const uniqueFoods = Array.from(uniqueFoodsMap.values());
+
+  if (!uniqueFoods.length) {
+    return res.status(404).json({ status: false, msg: "No food or restaurant found for this query" });
+  }
+
+  res.status(200).json({ status: true, msg: "Search results", foods: uniqueFoods });
+});
+

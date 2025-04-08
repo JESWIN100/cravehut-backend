@@ -4,7 +4,7 @@ export const verifyUserToken = (req, res, next) => {
   const token = req.cookies.Usertoken || req.headers['authorization']?.replace(/^Bearer\s/, '');
 
   if (!token) {
-    return res.status(403).json({ success: false, message: 'Access denied. No token provided.' });
+    return res.status(403).json({ success: false,token:false, message: 'Access denied. No token provided.' });
   }
 
   try {
@@ -12,7 +12,7 @@ export const verifyUserToken = (req, res, next) => {
     
     // Ensure role exists
     if (!verified.role) {
-      return res.status(403).json({ success: false, message: 'Access denied. No role found in token.' });
+      return res.status(403).json({ success: false,token:false, message: 'Access denied. No role found in token.' });
     }
 
     req.user = verified;
@@ -20,6 +20,6 @@ export const verifyUserToken = (req, res, next) => {
     
     next();
   } catch (error) {
-    res.status(400).json({ success: false, error: 'Invalid token' });
+    res.status(400).json({ success: false,token:false, error: 'Invalid token' });
   }
 };

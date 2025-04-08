@@ -1,5 +1,5 @@
 import express from "express"
-import { createFood, deleteFood, editFood, getAllFoods, getRestaurantsByFoodName, getUniqueFoods } from "../controllers/foodController.js"
+import { createFood, deleteFood, editFood, getAllFoods, getRestaurantsByFoodName, getUniqueFoods, searchFood } from "../controllers/foodController.js"
 import { upload } from "../config/multer.js"
 
 

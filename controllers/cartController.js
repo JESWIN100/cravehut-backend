@@ -56,8 +56,10 @@ export const addToCart = asyncHandler(async (req, res) => {
 
 // 📌 Remove item from cart
 export const removeFromCart = asyncHandler(async (req, res) => {
-    const { userId, productId } = req.body;
-
+  const productId = req.query.productId;
+    console.log(productId);
+    
+    const userId = req.user.id;
 
     let cart = await Cart.findOne({ userId });
     if (!cart) return res.status(404).json({ message: "Cart not found" });

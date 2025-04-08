@@ -86,3 +86,31 @@ export const deleteAdmin = asyncHandler(async (req, res) => {
     await admin.deleteOne();
     res.status(200).json({ success: true, message: "Admin deleted successfully" });
 });
+
+
+export const checkAdmin=asyncHandler(async(req,res,next)=>{
+  
+
+          const user=req.admin;
+          console.log(user);
+          
+          if(!user){
+              return res.status(401).json({success:false,message:'Admin not authenticated'})
+              }
+          
+        res.json({success:true,message:'Admin is authenticated'})
+      
+      
+          } )
+
+
+// Logout Admin
+export const logoutAdmin = asyncHandler(async (req, res) => {
+    res.clearCookie("AdminToken", {
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+    });
+
+    res.status(200).json({ success: true, message: "Admin logged out successfully" });
+});

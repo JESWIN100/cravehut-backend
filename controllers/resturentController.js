@@ -130,10 +130,10 @@ export const Resturentlogin = asyncHandler(async (req, res) => {
           // console.log(user);
           
           if(!user){
-              return res.status(401).json({success:false,message:'Resturrabt not authenticated'})
+              return res.status(401).json({success:false,message:'Resturant not authenticated'})
               }
           
-        res.json({success:true,message:'Resturabt is authenticated'})
+        res.json({success:true,message:'Resturant is authenticated'})
       
       
           } )
@@ -207,6 +207,21 @@ export const getRestaurantById = asyncHandler(async (req, res) => {
   res.status(200).json({ status: true, msg: "Restaurant fetched successfully", data: restaurant });
 });
 
+export const RestaurantByIds = asyncHandler(async (req, res) => {
+  const id = req.params?.id;
+
+  if (!id) {
+    return res.status(401).json({ status: false, msg: "Unauthorized: owner ID not found" });
+  }
+
+  const restaurant = await Restaurant.findById(id).select("-__v");
+
+  if (!restaurant) {
+    return res.status(404).json({ status: false, msg: "No restaurant found for this owner" });
+  }
+
+  res.status(200).json({ status: true, msg: "Restaurant fetched successfully", data: restaurant });
+});
 
 
 

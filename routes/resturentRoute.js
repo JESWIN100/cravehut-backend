@@ -1,5 +1,5 @@
 import express from "express"
-import { checkOwnerHasRestaurant, checkRestutant, createResturent, deleteResturent, editRestaurant, getAllResturent, getRestaurantById, getResturant, Resturentlogin, Resturentregister } from "../controllers/resturentController.js"
+import { checkOwnerHasRestaurant, checkRestutant, createResturent, deleteResturent, editRestaurant, getAllResturent, getRestaurantById, getResturant, RestaurantByIds, Resturentlogin, Resturentregister } from "../controllers/resturentController.js"
 import { upload } from "../config/multer.js"
 import { verifyResturentToken } from "../middleware/verifyResturentToke.js"
 import { getFoodsByRestaurantId } from "../controllers/foodController.js"
@@ -21,5 +21,9 @@ router.get('/getallbyid',verifyResturentToken,getRestaurantById)
 router.get('/getresturantfood/:id',getFoodsByRestaurantId)
 router.put('/edit-resturent/:id',verifyResturentToken,editRestaurant)
 router.delete('/delete-resturent/:id',verifyResturentToken,deleteResturent)
+
+router.get('/getid/:id',RestaurantByIds)
+
+
 
 export  default router
