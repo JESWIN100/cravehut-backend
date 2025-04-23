@@ -1,6 +1,8 @@
 import { User } from "../models/userSchema.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { generateTokenSync } from "../utils/generateToken.js";
+import { generateOtp, saveOtp, verifyOtpAndDelete } from "../utils/otpGenerator.js";
+import { sendOtpEmail } from "../utils/sendOtp.js";
 import { registerValidation } from "../validation/userJoiValidation.js";
 import bcrypt from "bcryptjs";
 
@@ -55,7 +57,7 @@ export const register = asyncHandler(async (req, res) => {
 
 
   res.status(201).json({
-    sucess:true,
+    success:true,
     msg: "User registered successfully",
    data:newUser,
    tokem:token,
@@ -65,16 +67,32 @@ export const register = asyncHandler(async (req, res) => {
 
 
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email } = req.body;
+
   const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ msg: "User not found" });
 
-  if (!user) return res.status(400).json({ msg:`${user.role} Not found` });
+  const otp = generateOtp();
+  await saveOtp(email, otp);
+  await sendOtpEmail(email, otp); // email sending function
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ msg: "Invalid credentials" });
+  res.status(200).json({ msg: "OTP sent to your email" });
+});
 
-  const token = generateTokenSync(user._id, user.role);
 
+
+export const verifyOtp = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+
+  
+  const user = await User.findOne({ email });
+  if (!user) return res.status(404).json({ msg: "User not found" });
+
+  const isOtpValid = await verifyOtpAndDelete(email, otp);
+  if (!isOtpValid) return res.status(400).json({ msg: "Invalid or expired OTP" });
+
+  const token = generateTokenSync(user._id, user.role, user.email);
   res.cookie('Usertoken', token, { httpOnly: true, sameSite: 'None', secure: true });
 
   res.status(200).json({
@@ -89,6 +107,7 @@ export const login = asyncHandler(async (req, res) => {
     token: token,
   });
 });
+
 
 
         export const editProfile=asyncHandler(async(req,res)=>{

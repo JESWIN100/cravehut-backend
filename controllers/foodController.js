@@ -88,7 +88,8 @@ export const getUniqueFoods = asyncHandler(async (req, res) => {
 
 export const getFoodsByRestaurantId = asyncHandler(async (req, res) => {
   const restaurantId  = req.params.id;
-
+const restid=req
+console.log(restid);
 
   const foods = await Food.find({ restaurant: restaurantId }).populate("restaurant");
 
@@ -101,11 +102,11 @@ export const getFoodsByRestaurantId = asyncHandler(async (req, res) => {
 });
 
 
-export const getRestaurantsByFoodName = asyncHandler(async (req, res) => {
-  const { foodName } = req.params; // or use req.query.foodName
+export const getRestaurantsByCategory = asyncHandler(async (req, res) => {
+  const { category } = req.params; // or use req.query.category
 
   // Find all food items with the given name (case-insensitive)
-  const foods = await Food.find({ name: { $regex: new RegExp(foodName, 'i') } });
+  const foods = await Food.find({ category: { $regex: new RegExp(category, 'i') } });
 
   if (!foods.length) {
     return res.status(404).json({ status: false, msg: "No restaurants found offering this food item" });
@@ -119,10 +120,12 @@ export const getRestaurantsByFoodName = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     status: true,
-    msg: `Restaurants offering "${foodName}"`,
+    msg: `Restaurants offering "${category}"`,
     data: restaurants
   });
+
 });
+
 
 
 export const editFood=asyncHandler(async(req,res)=>{

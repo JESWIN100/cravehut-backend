@@ -6,52 +6,67 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 // 📌 Add item to cart
 // backend/controllers/cartController.js
 export const addToCart = asyncHandler(async (req, res) => {
-    const { productId, quantity } = req.body;
-    const userId = req.user.id;
-  console.log(req.body);
-  
-    const product = await Food.findById(productId);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-  
-    console.log(product);
-    
+  const { productId, quantity, restaurantId } = req.body;
+  const userId = req.user.id;
 
-    let cart = await Cart.findOne({ userId });
-  
-    if (!cart) {
-      cart = new Cart({ userId, items: [], totalPrice: 0 });
-    }
-  
-    const existingItem = cart.items.find(
-      (item) => item.productId.toString() === productId
-    );
-  
-    if (existingItem) {
-      existingItem.quantity += Number(quantity);
-    } else {
-      cart.items.push({
-        productId,
-        name: product.name,
-        price: product.price || 0,
-        image: product.image, // ✅ Add image here
-        quantity: Number(quantity),
-        foodId:productId,
-      });
-    }
-  
-    cart.totalPrice = cart.items.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
-    );
-  
-    await cart.save();
-    res
-      .status(200)
-      .json({ success: true, message: "Cart updated successfully", cart });
+  const product = await Food.findById(productId);
+  if (!product) {
+    return res.status(404).json({ message: "Product not found" });
+  }
+
+  let cart = await Cart.findOne({ userId });
+
+  if (!cart) {
+    // Create a new cart
+    cart = new Cart({
+      userId,
+      items: [],
+      totalPrice: 0
+    });
+  } else if (
+    cart.items.length > 0 &&
+    cart.items[0].restaurantId.toString() !== restaurantId
+  ) {
+    // If restaurant ID doesn't match, reset the cart
+    cart.items = [];
+    cart.totalPrice = 0;
+  }
+
+  // Check if product is already in the cart
+  const existingItem = cart.items.find(
+    (item) => item.productId.toString() === productId
+  );
+
+  if (existingItem) {
+    existingItem.quantity += Number(quantity);
+  } else {
+    cart.items.push({
+      productId,
+      name: product.name,
+      price: product.price || 0,
+      image: product.image,
+      quantity: Number(quantity),
+      foodId: productId,
+      restaurantId 
+    });
+  }
+
+  // Recalculate total price
+  cart.totalPrice = cart.items.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
+
+  await cart.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Cart updated successfully",
+    cart,
   });
-  
+});
+
+
 
 
 // 📌 Remove item from cart
@@ -75,7 +90,9 @@ export const removeFromCart = asyncHandler(async (req, res) => {
 // 📌 Get cart items
 export const getCart = asyncHandler(async (req, res) => {
     const  userId  =req.user.id;
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+   const cart = await Cart.findOne({ userId });
+
+
     if (!cart) return res.status(404).json({ message: "Cart is empty" });
     res.status(200).json(cart);
 });
@@ -107,3 +124,14 @@ export const updateCart = asyncHandler(async (req, res) => {
     await cart.save();
     res.status(200).json({ success: true, message: "Cart updated successfully", cart });
 });
+
+
+export const getAllCartTotal=asyncHandler(async(req,res)=>{
+  
+  
+  const products=await Cart.countDocuments()
+  if(!products){
+      return res.status(404).json({message:"No Carts found"})
+      }
+      res.status(200).json({success: true, message: 'Carts list fetched', data: products})
+})

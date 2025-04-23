@@ -12,7 +12,7 @@ export const Resturentregister = asyncHandler(async (req, res) => {
 
 
   const { name, email, password, confirmPassword,role } = req.body;
-console.log(req.body);
+// console.log(req.body);
 
   // Check for empty fields
   if (!name || !email || !password || !confirmPassword) {
@@ -101,6 +101,19 @@ export const Resturentlogin = asyncHandler(async (req, res) => {
             userDetails,
           });
         });
+
+
+export const logoutResturent = asyncHandler(async (req, res) => {
+    res.clearCookie("Resturenttoken", {
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+    });
+
+    res.status(200).json({ success: true, message: "Admin logged out successfully" });
+});
+
+
       
         export const checkOwnerHasRestaurant = asyncHandler(async (req, res) => {
           const ownerId = req.resturent.id;
@@ -142,7 +155,7 @@ export const Resturentlogin = asyncHandler(async (req, res) => {
 export const createResturent=asyncHandler(async(req,res)=>{
 
     const {name,address,contactNumber,cuisineType,ratings,operatingHours,menuItems,deliveryAvaible,category,offers}=req.body;
-console.log(req.body);
+// console.log(req.body);
 
       const { error } = restaurantValidation(req.body);
       if (error) {
@@ -186,7 +199,7 @@ console.log(req.body);
 
 
 export const getAllResturent=asyncHandler(async(req,res)=>{
-    const restaurants=await Restaurant.find().select("-__v");
+    const restaurants=await Restaurant.find().select("-__v").populate("owner");
     res.json({ status:true, msg: "All restaurants",data:restaurants });
     
 })

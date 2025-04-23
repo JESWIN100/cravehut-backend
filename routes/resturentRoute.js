@@ -1,8 +1,10 @@
 import express from "express"
-import { checkOwnerHasRestaurant, checkRestutant, createResturent, deleteResturent, editRestaurant, getAllResturent, getRestaurantById, getResturant, RestaurantByIds, Resturentlogin, Resturentregister } from "../controllers/resturentController.js"
+import { checkOwnerHasRestaurant, checkRestutant, createResturent, deleteResturent, editRestaurant, getAllResturent, getRestaurantById, getResturant, logoutResturent, RestaurantByIds, Resturentlogin, Resturentregister } from "../controllers/resturentController.js"
 import { upload } from "../config/multer.js"
 import { verifyResturentToken } from "../middleware/verifyResturentToke.js"
 import { getFoodsByRestaurantId } from "../controllers/foodController.js"
+import { getallCategory } from "../controllers/categoryController.js"
+import { getPaymentsByRestaurantId, updateOrderStatus } from "../controllers/paymantController.js"
 
 
 
@@ -11,6 +13,7 @@ const router=express.Router()
 router.post("/register",Resturentregister)
 router.post("/login",Resturentlogin)
 router.get("/getprofile",verifyResturentToken,getResturant)
+router.post("/logout",verifyResturentToken,logoutResturent)
 
 router.get("/check/hasrestaurant", verifyResturentToken, checkOwnerHasRestaurant);
 router.get("/check-resturant",verifyResturentToken,checkRestutant)
@@ -25,5 +28,11 @@ router.delete('/delete-resturent/:id',verifyResturentToken,deleteResturent)
 router.get('/getid/:id',RestaurantByIds)
 
 
+router.get('/getallcategory',verifyResturentToken,getallCategory)
+
+
+
+router.get('/orders',verifyResturentToken, getPaymentsByRestaurantId);
+router.put('/status/:orderId',verifyResturentToken, updateOrderStatus);
 
 export  default router

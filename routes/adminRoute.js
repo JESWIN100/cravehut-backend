@@ -3,6 +3,9 @@ import { checkAdmin, createAdmin, getAdminProfile, loginAdmin, logoutAdmin } fro
 import { verifyAdminToken } from "../middleware/verifyAdminToke.js"
 import { getAllResturent } from "../controllers/resturentController.js"
 import { getAllFoods } from "../controllers/foodController.js"
+import { createCategory, getallCategory } from "../controllers/categoryController.js"
+import { upload } from "../config/multer.js"
+import { getAllPayments } from "../controllers/paymantController.js"
 
 
 
@@ -21,5 +24,9 @@ router.get('/Admingetall',verifyAdminToken,getAllFoods)
 router.get('/AdminResturantgetall',verifyAdminToken,getAllResturent)
 
 
+router.post('/createCategory',verifyAdminToken,upload.single('image'),createCategory)
+router.get('/getallcategory',verifyAdminToken,getallCategory)
+
+router.get('/getall', getAllPayments);
 
 export  default router
