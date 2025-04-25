@@ -1,3 +1,4 @@
+import { json } from "stream/consumers";
 import { cloudinaryInstance } from "../config/cloudinaryConfig.js";
 import { Food } from "../models/foodSchema.js";
 import { Restaurant } from "../models/resturentSchema.js";
@@ -61,6 +62,22 @@ export const getAllFoods=asyncHandler(async(req,res)=>{
   res.status(200).json({ status:true, msg: "All foods fetched successfully", foods: allFoods });
 
 })
+
+export const getfoodbyid=asyncHandler(async(req,res)=>{
+  const {id}=req.params
+
+  console.log(id);
+  
+
+const foodbyid=await Food.findById(id)
+console.log(foodbyid);
+
+
+res.status(200).json({ status:true, msg: " foods fetched successfully", foods: foodbyid });
+})
+
+
+
 export const getUniqueFoods = asyncHandler(async (req, res) => {
   // Get all foods with restaurant data
   const allFoods = await Food.find().populate("restaurant");
@@ -128,36 +145,52 @@ export const getRestaurantsByCategory = asyncHandler(async (req, res) => {
 
 
 
-export const editFood=asyncHandler(async(req,res)=>{
-  
+export const editFood = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const { name, price, description, category, rating, restaurant, discount, ingredients, availability} = req.body;
-    // console.log(req.body);
-    // console.log(req.file);
-    let imageUrl = "";
-    if (req.file) {
-      const result = await cloudinaryInstance.uploader.upload(req.file.path, {
-        folder: "food_images",
-        });
-        imageUrl = result.secure_url;
-        }
-        const updatedFood = await Food.findByIdAndUpdate(id, {
-          name,
-          price,
-          description,
-          category,
-          rating,
-          restaurant,
-          discount,
-          ingredients,
-          availability,
-          image: imageUrl,
-          }, { new: true });
-          res.status(200).json({ status:true, msg: "Food item updated successfully", food
-            : updatedFood });
+  const {
+    name,
+    price,
+    description,
+    category,
+    rating,
+    restaurant,
+    discount,
+    ingredients,
+    availability,
+  } = req.body;
 
-})
+  let updatedFields = {
+    name,
+    price,
+    description,
+    category,
+    rating,
+    restaurant,
+    discount,
+    ingredients,
+    availability,
+  };
+
+  // Only update the image if a new file is uploaded
+  if (req.file) {
+    const result = await cloudinaryInstance.uploader.upload(req.file.path, {
+      folder: "food_images",
+    });
+    updatedFields.image = result.secure_url;
+  }
+
+  const updatedFood = await Food.findByIdAndUpdate(id, updatedFields, {
+    new: true,
+  });
+
+  res.status(200).json({
+    status: true,
+    msg: "Food item updated successfully",
+    food: updatedFood,
+  });
+});
+
 
 
 export const deleteFood = asyncHandler(async (req, res) => {

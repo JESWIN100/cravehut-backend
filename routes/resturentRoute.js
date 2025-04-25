@@ -2,7 +2,7 @@ import express from "express"
 import { checkOwnerHasRestaurant, checkRestutant, createResturent, deleteResturent, editRestaurant, getAllResturent, getRestaurantById, getResturant, logoutResturent, RestaurantByIds, Resturentlogin, Resturentregister } from "../controllers/resturentController.js"
 import { upload } from "../config/multer.js"
 import { verifyResturentToken } from "../middleware/verifyResturentToke.js"
-import { getFoodsByRestaurantId } from "../controllers/foodController.js"
+import { editFood, getfoodbyid, getFoodsByRestaurantId } from "../controllers/foodController.js"
 import { getallCategory } from "../controllers/categoryController.js"
 import { getPaymentsByRestaurantId, updateOrderStatus } from "../controllers/paymantController.js"
 
@@ -34,5 +34,10 @@ router.get('/getallcategory',verifyResturentToken,getallCategory)
 
 router.get('/orders',verifyResturentToken, getPaymentsByRestaurantId);
 router.put('/status/:orderId',verifyResturentToken, updateOrderStatus);
+
+
+router.get('/food-getbyid/:id',verifyResturentToken,getfoodbyid)
+router.put('/edit-food/:id',upload.single('image'),editFood)
+
 
 export  default router
