@@ -8,7 +8,7 @@ import cors from 'cors'
 
 const app= express()
 app.use(
-    cors({origin:'http://localhost:5173',  credentials: true})
+    cors({origin:process.env.CORS,  credentials: true})
   );
 app.use(logger('dev'));
 app.use(express.json())

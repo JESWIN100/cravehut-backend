@@ -264,7 +264,7 @@ export const editRestaurant = asyncHandler(async (req, res) => {
 
 export const deleteResturent=asyncHandler(async(req,res)=>{
   const {id}=req.params; 
-  const restaurant=await Restaurant.findById(req.params.id);
+  const restaurant=await Restaurant.findById(id);
   if(!restaurant){
     return res.status(404).json({ msg: "Restaurant not found" });
     }
