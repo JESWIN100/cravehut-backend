@@ -6,10 +6,16 @@ import logger from 'morgan'
 import cors from 'cors'
 
 
+
+
 const app= express()
-app.use(
-    cors({origin:process.env.CORS,  credentials: true})
-  );
+
+app.use(cors({
+  origin: "https://cravehut.vercel.app", // fallback for local testing
+  credentials: true
+}));
+
+
 app.use(logger('dev'));
 app.use(express.json())
 app.use(cookieParser());
