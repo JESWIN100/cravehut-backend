@@ -22,7 +22,9 @@ app.use(cookieParser());
 
 
 connectDb()
-
+app.get('/', (req, res) => {
+  res.send('Hello World');
+});
 app.use('/api/v1',v1Router)
 
 app.listen(process.env.PORT,()=>{
