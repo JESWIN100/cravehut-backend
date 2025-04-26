@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import { cloudinaryInstance } from "../config/cloudinaryConfig.js";
-import { RestOwner } from "../models/ResturentOwners.js";
+// import { RestOwner } from "../models/ResturentOwners.js";
 import { Restaurant } from "../models/resturentSchema.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { restaurantValidation } from "../validation/resturentValidation.js";
 import { generateTokenSync } from "../utils/generateToken.js";
-
+import { RestOwner } from "../models/RestaurantOwners.js"; // ✅ Correct spelling
 
 export const Resturentregister = asyncHandler(async (req, res) => {
   // Validate input
