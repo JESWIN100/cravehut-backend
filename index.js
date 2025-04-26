@@ -11,7 +11,7 @@ import cors from 'cors'
 const app= express()
 
 app.use(cors({
-  origin: "https://cravehut.vercel.app", // fallback for local testing
+  origin: process.env.CORS, // fallback for local testing
   credentials: true
 }));
 
