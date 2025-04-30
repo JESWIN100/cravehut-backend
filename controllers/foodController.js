@@ -58,7 +58,7 @@ export const createFood = asyncHandler(async (req, res) => {
 export const getAllFoods=asyncHandler(async(req,res)=>{
 
 
-  const allFoods=await Food.find().populate("restaurant")
+  const allFoods=await Food.find().sort({ createdAt: -1 }).populate("restaurant")
   res.status(200).json({ status:true, msg: "All foods fetched successfully", foods: allFoods });
 
 })
@@ -122,26 +122,35 @@ console.log(restid);
 export const getRestaurantsByCategory = asyncHandler(async (req, res) => {
   const { category } = req.params; // or use req.query.category
 
-  // Find all food items with the given name (case-insensitive)
+  // Find all food items with the given category (case-insensitive)
   const foods = await Food.find({ category: { $regex: new RegExp(category, 'i') } });
 
   if (!foods.length) {
-    return res.status(404).json({ status: false, msg: "No restaurants found offering this food item" });
+    return res.status(404).json({ status: false, msg: "No food items found for this category" });
   }
 
   // Get unique restaurant IDs
   const restaurantIds = [...new Set(foods.map(food => food.restaurant.toString()))];
 
-  // Fetch restaurant details
+  // Fetch restaurant details based on the unique restaurant IDs
   const restaurants = await Restaurant.find({ _id: { $in: restaurantIds } });
+
+  // Combine food and restaurant details
+  const result = foods.map(food => {
+    const restaurant = restaurants.find(restaurant => restaurant._id.toString() === food.restaurant.toString());
+    return {
+      ...food.toObject(),
+      restaurantDetails: restaurant || {}, // Add the restaurant details for each food item
+    };
+  });
 
   res.status(200).json({
     status: true,
-    msg: `Restaurants offering "${category}"`,
-    data: restaurants
+    msg: `Restaurants offering "${category}" foods`,
+    data: result, // Return combined food and restaurant details
   });
-
 });
+
 
 
 

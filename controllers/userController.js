@@ -49,18 +49,18 @@ export const register = asyncHandler(async (req, res) => {
     return res.status(500).json({ msg: "Something went wrong. Try again later." });
   }
 
-  
-  const token=generateTokenSync(newUser._id,role)
-  
-  res.cookie('Usertoken', token, { httpOnly: true,  sameSite: 'None',
-    secure: true });
 
+  
+
+    const token = generateTokenSync(newUser._id, newUser.role, newUser.email);
+    res.cookie('Usertoken', token, { httpOnly: true, sameSite: 'None', secure: true });
+console.log(token);
 
   res.status(201).json({
     success:true,
     msg: "User registered successfully",
    data:newUser,
-   tokem:token,
+   token:token,
    role
   });
 });
@@ -131,16 +131,20 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
         export const getUser = asyncHandler(async (req, res, next) => {
           const user = req.user;
+          if(!user){
+            return res.status(401).json({success:false,message:'Resturant not authenticated'})
+            }
           const userDetails = await User.findById(user.id).select('-password');
       
           
           res.status(200).json({
             success: true,
             userDetails,
+            message:'Resturant is authenticated',
           });
         });
         
-
+     
 
 
 export const deleteUser=asyncHandler(asyncHandler(async(req,res)=>{

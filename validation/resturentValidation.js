@@ -8,11 +8,7 @@ const restaurantSchema = Joi.object({
     cuisineType: Joi.string().required(),
     ratings: Joi.number().min(0).max(5).default(0),
     reviews: Joi.array().items(Joi.string()).default([]),
-    operatingHours: Joi.object({
-        open: Joi.string().required(),
-        close: Joi.string().required(),
-    }).required(),
-    menuItems: Joi.array().items(Joi.string()).default([]),
+    
     deliveryAvailable: Joi.boolean().default(false),
     category:Joi.string().required(),
     offers:Joi.string().required(),

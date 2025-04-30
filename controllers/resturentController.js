@@ -12,7 +12,7 @@ export const Resturentregister = asyncHandler(async (req, res) => {
 
 
   const { name, email, password, confirmPassword,role } = req.body;
-// console.log(req.body);
+
 
   // Check for empty fields
   if (!name || !email || !password || !confirmPassword) {
@@ -55,7 +55,7 @@ export const Resturentregister = asyncHandler(async (req, res) => {
 
 
   res.status(201).json({
-    sucess:true,
+    success:true,
     msg: "User registered successfully",
    data:newresturent,
    tokem:token,
@@ -92,10 +92,10 @@ export const Resturentlogin = asyncHandler(async (req, res) => {
 
 
         export const getResturant = asyncHandler(async (req, res, next) => {
-          const user = req.user;
-          const userDetails = await User.findById(user.id).select('-password');
+          const user = req.resturent.id;
+          const userDetails = await Restaurant.findById(user.id).select('-password');
       
-          
+          log
           res.status(200).json({
             success: true,
             userDetails,
@@ -154,7 +154,7 @@ export const logoutResturent = asyncHandler(async (req, res) => {
 
 export const createResturent=asyncHandler(async(req,res)=>{
 
-    const {name,address,contactNumber,cuisineType,ratings,operatingHours,menuItems,deliveryAvaible,category,offers}=req.body;
+    const {name,address,contactNumber,cuisineType,ratings,category,offers}=req.body;
 // console.log(req.body);
 
       const { error } = restaurantValidation(req.body);
@@ -182,9 +182,6 @@ export const createResturent=asyncHandler(async(req,res)=>{
         contactNumber,
         cuisineType,
         ratings,
-        operatingHours,
-        menuItems,
-        deliveryAvaible,
         category,
         offers,
         image:imageUrl,

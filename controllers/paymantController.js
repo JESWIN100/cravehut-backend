@@ -6,10 +6,11 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { Cart } from '../models/cartSchema.js';
 import { User } from '../models/userSchema.js';
 import { Restaurant } from '../models/resturentSchema.js';
+import { sendMail } from '../utils/sendMail.js';
 
 const razorpayInstance = new Razorpay({
-  key_id: 'rzp_test_pEZkADDtQIAgoQ',
-  key_secret: 'guLsKjZwjkWip5PBOfub4GqO',
+  key_id: 'rzp_test_Yh0fPwTheqXsx5',
+  key_secret: 'yWdy6YEhYSQnoetu0ISm2dDV',
 });
 
 export const makePayment = asyncHandler(async (req, res) => {
@@ -86,6 +87,43 @@ export const verifyRazorpaySignature = asyncHandler(async (req, res) => {
     const userId = req.user.id;
     await Cart.findOneAndDelete({ userId });
 
+
+const orderdetails=await Payment.findOne({orderId:razorpay_order_id})
+
+
+const orderItems = orderdetails?.data || [];
+
+const subject = '🎉 Your FoodOrder is Confirmed!';
+
+const orderDetailsHtml = `
+  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+    <h2 style="color: #333;">Hi ${orderdetails.name},</h2>
+    <p style="font-size: 16px;">Thank you for ordering from <strong>FoodOrder</strong>! We're preparing your delicious meal 🍔🍕🍟.</p>
+
+    <h3 style="color: #555; border-bottom: 1px solid #ddd; padding-bottom: 5px;">🧾 Order Summary:</h3>
+    <ul style="list-style: none; padding: 0;">
+      ${orderItems.map(item => `
+        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+          <span style="font-weight: bold;">${item.name}</span> x ${item.quantity}
+          <span style="float: right;">$${(item.price * item.quantity).toFixed(2)}</span>
+        </li>
+      `).join('')}
+    </ul>
+
+    <h4 style="margin-top: 20px; color: #333;">Total Amount: <span style="color: #27ae60;">$${orderdetails.totalCost.toFixed(2)}</span></h4>
+
+    <p style="font-size: 16px; margin-top: 30px;">We will deliver your food shortly. Stay hungry, stay happy! 😋</p>
+
+    <div style="margin-top: 40px; text-align: center; font-size: 14px; color: #aaa;">
+      <p>© 2025 FoodOrder Inc.</p>
+    </div>
+  </div>
+`;
+
+await sendMail(orderdetails.email, subject, 'Order placed successfully.', orderDetailsHtml);
+
+
+
     return res.status(200).json({
       success: true,
       message: 'Payment verified and cart cleared',
@@ -126,11 +164,12 @@ console.log(orderId);
 
 export const getAllPayments = asyncHandler(async (req, res) => {
   const payments = await Payment.find()
-  // .populate('foodId')
+  .sort({ createdAt: -1 }) 
   .populate({
     path: 'data.restaurantId',
   });
 
+  console.log(payments);
   
 const amountoforder=await Payment.countDocuments()
 

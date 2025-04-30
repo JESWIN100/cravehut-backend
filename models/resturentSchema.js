@@ -31,23 +31,9 @@ const restaurantSchema = new mongoose.Schema({
         type: String,
         trim: true
     }],
-    operatingHours: {
-        open: {
-            type: String,
-            required: true
-        },
-        close: {
-            type: String,
-            required: true
-        }
-    },
-    menuItems: [{
-        type: String,
-        trim: true
-    }],
     deliveryAvailable: {
         type: Boolean,
-        default: false
+        default: true
     },
 
     category:{
