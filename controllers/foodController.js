@@ -205,6 +205,7 @@ export const editFood = asyncHandler(async (req, res) => {
 export const deleteFood = asyncHandler(async (req, res) => {
   const foodId = req.params.id;
   const food = await Food.findById(foodId);
+console.log(foodId);
 
   if (!food) {
     return res.status(404).json({ status: false, msg: "Food item not found" });

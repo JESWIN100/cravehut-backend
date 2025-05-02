@@ -105,12 +105,12 @@ const orderDetailsHtml = `
       ${orderItems.map(item => `
         <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
           <span style="font-weight: bold;">${item.name}</span> x ${item.quantity}
-          <span style="float: right;">$${(item.price * item.quantity).toFixed(2)}</span>
+          <span style="float: right;">₹${(item.price * item.quantity).toFixed(2)}</span>
         </li>
       `).join('')}
     </ul>
 
-    <h4 style="margin-top: 20px; color: #333;">Total Amount: <span style="color: #27ae60;">$${orderdetails.totalCost.toFixed(2)}</span></h4>
+    <h4 style="margin-top: 20px; color: #333;">Total Amount: <span style="color: #27ae60;">₹${orderdetails.totalCost.toFixed(2)}</span></h4>
 
     <p style="font-size: 16px; margin-top: 30px;">We will deliver your food shortly. Stay hungry, stay happy! 😋</p>
 
